@@ -19,6 +19,7 @@ from api.section import section_api
 from api.persona_api import persona_api
 from api.skill_snapshot_api import skill_passport_api
 from api.pfp import pfp_api
+from api.programs_api import programs_api
 from api.analytics import analytics_api
 from api.student import student_api
 from api.groq_api import groq_api
@@ -75,6 +76,7 @@ app.register_blueprint(section_api)
 app.register_blueprint(persona_api)
 app.register_blueprint(skill_passport_api)
 app.register_blueprint(pfp_api) 
+app.register_blueprint(programs_api)
 app.register_blueprint(groq_api)
 app.register_blueprint(gemini_api)
 app.register_blueprint(ainpc_api)
