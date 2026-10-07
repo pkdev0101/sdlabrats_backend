@@ -43,6 +43,10 @@ allowed_origins = [
     # Regex pattern to match any subdomain of opencodingsociety.com
     r'https://.*\.opencodingsociety\.com',
     'https://opencodingsociety.com',
+    # San Diego LabRats website (production domain and GitHub Pages preview)
+    'https://www.sdlabrats.org',
+    'https://sdlabrats.org',
+    'https://pkdev0101.github.io',
 ]
 
 cors = CORS(
@@ -124,6 +128,16 @@ app.config['SQLALCHEMY_BACKUP_URI'] = backupURI
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
+
+
+# San Diego LabRats website: email staff when a form is submitted (optional).
+# LABRATS_NOTIFY_TO takes a comma-separated list. Leave SMTP_HOST unset to only store submissions.
+app.config['LABRATS_NOTIFY_TO'] = os.environ.get('LABRATS_NOTIFY_TO')
+app.config['SMTP_HOST'] = os.environ.get('SMTP_HOST')
+app.config['SMTP_PORT'] = os.environ.get('SMTP_PORT') or 587
+app.config['SMTP_USER'] = os.environ.get('SMTP_USER')
+app.config['SMTP_PASSWORD'] = os.environ.get('SMTP_PASSWORD')
+app.config['SMTP_FROM'] = os.environ.get('SMTP_FROM')
 
 
 # Image upload settings
