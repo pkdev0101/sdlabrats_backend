@@ -314,3 +314,21 @@ first migration; this section is the summary.
 5. On production, update the schema: `python scripts/db_init.py`
 
 6. Push local changes to production: `python scripts/db_restore-sqlite2prod.py` (must exit 0)
+
+## San Diego LabRats website API
+
+The sdlabrats.org frontend (`sdlabrats_frontend`, project `_projects/nonprofits/sdlabrats`) uses two endpoints:
+
+| Method | Endpoint | Access | Purpose |
+|--------|----------|--------|---------|
+| GET | `/api/programs/` | public | Program catalog. Slugs match `programs[].slug` in the frontend's `_data/sdlabrats.yml`. |
+| POST | `/api/labrats/inquiries` | public | Stores a contact, scholarship, partnership, video-topic, or newsletter form. Returns `201`, or `400` with `errors` keyed by field name. |
+| GET | `/api/labrats/inquiries?form=&status=` | Admin | Lists submissions, newest first. |
+| PUT | `/api/labrats/inquiries/<id>` | Admin | Sets `status` to `new` or `handled`. |
+
+- Code: `model/labrats_programs.py`, `model/labrats_inquiry.py` (model and validation), `api/labrats_inquiry_api.py`, `api/programs_api.py`.
+- Staff view: log in as an Admin and open `/labrats/inquiries/` (also under Data in the navbar).
+- Email alerts: set `LABRATS_NOTIFY_TO` (comma-separated), `SMTP_HOST`, and optionally `SMTP_PORT` (587), `SMTP_USER`, `SMTP_PASSWORD`, `SMTP_FROM` in `.env`. Each submission is emailed with Reply-To set to the family. Without these settings submissions are only stored; a failed send is logged and never loses the submission (`model/labrats_notify.py`).
+- The table `labrats_inquiries` is created by `initLabRatsInquiries()`, which runs in `flask custom generate_data`; it only creates missing tables.
+- Validation mirrors the frontend rules in `js/labrats-form-data.js`; keep them in step.
+- Tests: `python -m unittest testing/test_labrats_inquiry.py` (uses the development database and removes the rows it creates).
