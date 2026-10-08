@@ -21,6 +21,8 @@ from api.skill_snapshot_api import skill_passport_api
 from api.pfp import pfp_api
 from api.programs_api import programs_api
 from api.labrats_inquiry_api import labrats_inquiry_api
+from api.labrats_users_api import labrats_users_api
+from api.labrats_assignment_api import labrats_assignment_api
 from api.analytics import analytics_api
 from api.student import student_api
 from api.groq_api import groq_api
@@ -53,6 +55,7 @@ from model.post import Post, init_posts
 from model.microblog import MicroBlog, Topic, initMicroblogs
 from model.leaderboard import ScoreCounterEvent, ElementaryLeaderboardEvent
 from model.labrats_inquiry import LabRatsInquiry, initLabRatsInquiries, FORM_RULES as LABRATS_FORMS
+from model.labrats_assignment import initLabRatsAssignments
 from hacks.jokes import initJokes 
 # from model.announcement import Announcement ##temporary revert
 
@@ -80,6 +83,8 @@ app.register_blueprint(skill_passport_api)
 app.register_blueprint(pfp_api) 
 app.register_blueprint(programs_api)
 app.register_blueprint(labrats_inquiry_api)  # San Diego LabRats website forms
+app.register_blueprint(labrats_users_api)  # San Diego LabRats admin account control
+app.register_blueprint(labrats_assignment_api)  # San Diego LabRats assignments and turn-ins
 app.register_blueprint(groq_api)
 app.register_blueprint(gemini_api)
 app.register_blueprint(ainpc_api)
@@ -375,6 +380,7 @@ def generate_data():
     initPersonas()
     initPersonaUsers()
     initLabRatsInquiries()
+    initLabRatsAssignments()
 
 # Register the custom command group with the Flask application
 app.cli.add_command(custom_cli)
