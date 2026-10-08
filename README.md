@@ -325,10 +325,19 @@ The sdlabrats.org frontend (`sdlabrats_frontend`, project `_projects/nonprofits/
 | POST | `/api/labrats/inquiries` | public | Stores a contact, scholarship, partnership, video-topic, or newsletter form. Returns `201`, or `400` with `errors` keyed by field name. |
 | GET | `/api/labrats/inquiries?form=&status=` | Admin | Lists submissions, newest first. |
 | PUT | `/api/labrats/inquiries/<id>` | Admin | Sets `status` to `new` or `handled`. |
+| GET | `/api/labrats/users?q=` | Admin | Lists accounts (no password hashes). |
+| POST | `/api/labrats/users` | Admin | Creates an account: `name`, `uid`, `password`, `role` (`User`, `Teacher`, `Admin`), optional `email`. No GitHub account needed. |
+| PUT / DELETE | `/api/labrats/users/<uid>` | Admin | Changes name, email, role, or password; deletes an account and its turn-ins. Admins can't demote or delete themselves. |
+| GET / POST | `/api/labrats/assignments` | signed in / Admin | Students see open assignments with their own turn-in; Admins see all and post new ones. |
+| PUT / DELETE | `/api/labrats/assignments/<id>` | Admin | Edits, opens or closes, or deletes an assignment. |
+| PUT | `/api/labrats/assignments/<id>/turnin` | signed in | Turns in (or replaces) the student's work: `response`, optional `link`. Closed assignments return 409. |
+| GET | `/api/labrats/assignments/<id>/turnins` | Admin | All turn-ins for an assignment. |
+| PUT | `/api/labrats/turnins/<id>` | Admin | Leaves `feedback` and/or sets `status` (`submitted`, `reviewed`). |
 
-- Code: `model/labrats_programs.py`, `model/labrats_inquiry.py` (model and validation), `api/labrats_inquiry_api.py`, `api/programs_api.py`.
+- Code: `model/labrats_programs.py`, `model/labrats_inquiry.py` (model and validation), `model/labrats_accounts.py`, `model/labrats_assignment.py`, and the `api/labrats_*_api.py` blueprints plus `api/programs_api.py`.
+- Sign-in uses the existing `POST /api/authenticate` cookie; the frontend's `/sign-in/`, `/account/`, and `/admin/` pages call these endpoints.
 - Staff view: log in as an Admin and open `/labrats/inquiries/` (also under Data in the navbar).
 - Email alerts: set `LABRATS_NOTIFY_TO` (comma-separated), `SMTP_HOST`, and optionally `SMTP_PORT` (587), `SMTP_USER`, `SMTP_PASSWORD`, `SMTP_FROM` in `.env`. Each submission is emailed with Reply-To set to the family. Without these settings submissions are only stored; a failed send is logged and never loses the submission (`model/labrats_notify.py`).
-- The table `labrats_inquiries` is created by `initLabRatsInquiries()`, which runs in `flask custom generate_data`; it only creates missing tables.
+- The tables `labrats_inquiries`, `labrats_assignments`, and `labrats_turnins` are created by `initLabRatsInquiries()` and `initLabRatsAssignments()`, which run in `flask custom generate_data`; they only create missing tables.
 - Validation mirrors the frontend rules in `js/labrats-form-data.js`; keep them in step.
-- Tests: `python -m unittest testing/test_labrats_inquiry.py` (uses the development database and removes the rows it creates).
+- Tests: `python -m unittest testing/test_labrats_inquiry.py testing/test_labrats_admin.py` (use the development database, remove what they create; the admin tests sign in as the default admin, so run `scripts/db_init.py` first).
